@@ -1,4 +1,5 @@
 ﻿using RBOClientLib.Clients;
+using RBOClientLib.DTOs.Groups;
 using RBOClientLib.DTOs.Rules;
 
 using System;
@@ -24,6 +25,7 @@ namespace RBOClientLib
         List<AddRuleParameters> addRuleParameters = new List<AddRuleParameters>();
 
         HttpClient client;
+        AccountsClient accounts;
         GroupsClient groups;
         RulesClient rules;
         ParametersClient parameters;
@@ -46,8 +48,17 @@ namespace RBOClientLib
             SetClients(groupName);
         }
 
-        public void SetClients(string groupName)
+        public void Login(string username, string password)
         {
+            var task = accounts.LoginAsync(username, password);
+            task.Wait();
+            var token = task.Result;    
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);            
+        }
+
+        private void SetClients(string groupName)
+        {
+            accounts = new AccountsClient(client);
             groups = new GroupsClient(client);
             rules = new RulesClient(client);
             parameters = new ParametersClient(client);
@@ -55,7 +66,7 @@ namespace RBOClientLib
             this.groupName = groupName;
         }
 
-        private async Task<Guid> CreateGroupAsync(string name)
+        private async Task<(Guid, bool)> CreateGroupAsync(string name)
         {
             return await groups.CreatAsync(name);
         }
@@ -90,39 +101,44 @@ namespace RBOClientLib
       
         private Guid SendAllRules()
         {
-            //Group
-            Task<Guid> task = CreateGroupAsync(groupName);
-            task.Wait();
-            Guid groupId = task.Result;
 
-            //Rules
-            Task<Guid>[] ruleTasks = new Task<Guid>[addRuleParameters.Count];
-            for (int i = 0; i < addRuleParameters.Count; i++)
+            //Group
+            
+            Task<(Guid, bool)> task = CreateGroupAsync(groupName);
+            task.Wait();
+           
+            (Guid groupId, bool isNewGroup)  = task.Result;
+            
+            if (isNewGroup)
             {
-                var rule = addRuleParameters[i];
-                ruleTasks[i] = CreateRuleAsync(groupId, i, rule.Pattern, rule.SourceType, rule.DestinationType);
-                //ruleTasks[i].Wait();
-            }
-            Task.WaitAll(ruleTasks);
-            //Parameters
-            Task<Guid>[][] parameterTasks = new Task<Guid>[addRuleParameters.Count][];
-            for (int i = 0; i < addRuleParameters.Count; i++)
-            {
-                var rule = addRuleParameters[i];
-                parameterTasks[i] = new Task<Guid>[rule.Parameters.Length];
-                Guid ruleId = ruleTasks[i].Result;
-                for (int j = 0; j < rule.Parameters.Length; j++)
+                //Rules
+                Task<Guid>[] ruleTasks = new Task<Guid>[addRuleParameters.Count];
+                for (int i = 0; i < addRuleParameters.Count; i++)
                 {
-                    parameterTasks[i][j] = CreateParameterAsync(ruleId, j, rule.Parameters[j].ToString());
-                    //parameterTasks[i][j].Wait();
+                    var rule = addRuleParameters[i];
+                    ruleTasks[i] = CreateRuleAsync(groupId, i, rule.Pattern, rule.SourceType, rule.DestinationType);
+                    //ruleTasks[i].Wait();
+                }
+                Task.WaitAll(ruleTasks);
+                //Parameters
+                Task<Guid>[][] parameterTasks = new Task<Guid>[addRuleParameters.Count][];
+                for (int i = 0; i < addRuleParameters.Count; i++)
+                {
+                    var rule = addRuleParameters[i];
+                    parameterTasks[i] = new Task<Guid>[rule.Parameters.Length];
+                    Guid ruleId = ruleTasks[i].Result;
+                    for (int j = 0; j < rule.Parameters.Length; j++)
+                    {
+                        parameterTasks[i][j] = CreateParameterAsync(ruleId, j, rule.Parameters[j].ToString());
+                        //parameterTasks[i][j].Wait();
+                    }
+                }
+                for (int i = 0; i < addRuleParameters.Count; i++)
+                {
+                    Task.WaitAll(parameterTasks[i]);
                 }
             }
-            for (int i = 0; i < addRuleParameters.Count; i++)
-            {
-                  Task.WaitAll(parameterTasks[i]);
-            }
-            return groupId;
-            throw new NotImplementedException();
+            return groupId;           
         }
         
 

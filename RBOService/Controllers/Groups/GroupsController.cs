@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RBOService.Exceptions;
 using RBOService.Handlers.Groups;
 using RBOService.Handlers.Groups.Commands;
@@ -13,13 +15,18 @@ using SimpleSoft.Mediator;
 
 namespace RBOService.Controllers.Groups
 {
-    [Route("[controller]")]
+    [ApiController]
+    [Authorize]
+    [Route("[controller]")]  
     public class GroupsController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public GroupsController(IMediator mediator)
+        private readonly ILogger<GroupsController> _logger;
+
+        public GroupsController(IMediator mediator, ILogger<GroupsController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -62,20 +69,27 @@ namespace RBOService.Controllers.Groups
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> PostAsync([FromBody] CreateGroupModel model, CancellationToken ct)
         {
+            var userName = User.Identity?.Name;
+            _logger.LogInformation($"User '{userName}' is creating group '{model.Name}'");
             var result = await _mediator.SendAsync(new CreateGroupCommand
             {
                 Name = model.Name
-
             }, ct);
-
             var resultModel = new CreateGroupResultModel
             {
                 Id = result.Id
             };
-
-            return Created("", resultModel);
+            if (result.IsNew)
+            {
+                return Created("", resultModel);
+            }
+            else
+            {
+                return Conflict(resultModel);
+            }
         }
 
         [HttpPut("{id:guid}")]

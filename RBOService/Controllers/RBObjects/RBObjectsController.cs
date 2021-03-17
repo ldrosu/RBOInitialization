@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using RBOService.Exceptions;
 using RBOService.Handlers.RBObjects;
@@ -15,12 +17,16 @@ namespace RBOService.Controllers.RBObjects
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class RBObjectsController : ControllerBase
     { 
         private readonly IMediator _mediator;
-        public RBObjectsController(IMediator mediator)
+        private readonly ILogger<RBObjectsController> _logger;
+
+        public RBObjectsController(IMediator mediator, ILogger<RBObjectsController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
            
         [HttpPost]
@@ -32,6 +38,9 @@ namespace RBOService.Controllers.RBObjects
         {
             try
             {
+                var userName = User.Identity?.Name;
+                _logger.LogInformation($"User '{userName}' is creating rule based object");
+
                 var createRBObjectCommand = new CreateRBObjectCommand
                 {
                     ObjectTemplate = objectTemplate,
@@ -58,6 +67,9 @@ namespace RBOService.Controllers.RBObjects
         {
             try 
             {
+                var userName = User.Identity?.Name;
+                _logger.LogInformation($"User '{userName}' is creating rule based array");
+
                 var createRBArrayCommand = new CreateRBArrayCommand
                 {
                     ArrayTemplate = arrayTemplate,

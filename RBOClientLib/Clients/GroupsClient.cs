@@ -19,18 +19,20 @@ namespace RBOClientLib.Clients
             controllerPath = "Groups";
         }
        
-        public async Task<Guid> CreatAsync(string name)
+        public async Task<(Guid, bool)> CreatAsync(string name)
         {
             HttpResponseMessage response = await client.PostAsJsonAsync(
                 controllerPath, new CreateGroupRequest { Name = name });
-            if (response.IsSuccessStatusCode)
+            
+            if (response.IsSuccessStatusCode || response.StatusCode==HttpStatusCode.Conflict)
             {
                 CreateGroupResponse group = await response.Content.ReadAsAsync<CreateGroupResponse>();
-                return group.Id;
+                bool IsNewGroup = response.IsSuccessStatusCode;
+                return (group.Id, IsNewGroup);
             }
             else
             {
-                throw new InvalidOperationException($"Group named '{name}' already exists");
+                throw new UnauthorizedAccessException($"Unouthorized group creation '{name}'");
             }      
         }
     }

@@ -30,10 +30,11 @@ namespace RBOClientLib.Clients
             }
             else
             {
-                throw new InvalidOperationException($"Invalid operation");
+                throw new UnauthorizedAccessException($"Unauthorized object creation");
             }
 
         }
+
         public async Task<T[]> CreatArrayAsync<T>(Guid groupId, T[] rBArray, int length)
         {
             string path = $"{controllerPath}/array/{groupId}?length={length}";
@@ -46,7 +47,7 @@ namespace RBOClientLib.Clients
             }
             else
             {
-                throw new InvalidOperationException($"Invalid operation");
+                throw new UnauthorizedAccessException($"Unauthorized array creation");
             }
 
         }

@@ -21,21 +21,33 @@ namespace RBOService.Handlers.Groups
         public async Task<CreateGroupResult> HandleAsync(CreateGroupCommand cmd, CancellationToken ct)
         {
             var groups = _context.Set<GroupEntity>();
-
-            var externalId = Guid.NewGuid();
-            await groups.AddAsync(new GroupEntity
+            var group = await groups.Where(g => g.Name == cmd.Name).Select(g => g).FirstOrDefaultAsync();
+            if (group == null)
             {
-                ExternalId = externalId,
-                Name = cmd.Name,
-               
-            }, ct);
+                var externalId = Guid.NewGuid();
+                await groups.AddAsync(new GroupEntity
+                {
+                    ExternalId = externalId,
+                    Name = cmd.Name,
 
-            await _context.SaveChangesAsync(ct);
+                }, ct);
 
-            return new CreateGroupResult
+                await _context.SaveChangesAsync(ct);
+
+                return new CreateGroupResult
+                {
+                    Id = externalId,
+                    IsNew = true
+                };
+            }
+            else
             {
-                Id = externalId
-            };
+                return new CreateGroupResult
+                {
+                    Id = group.ExternalId,
+                    IsNew = false
+                };
+            }
         }
-    }
+    }    
 }

@@ -32,7 +32,7 @@ namespace RBOClientLib.Clients
             }
             else
             {
-                throw new InvalidOperationException($"Parameter creation at index '{index}' for rule '{ruleId}' failed.");
+                throw new UnauthorizedAccessException($"Unauthorized parameter creation at index '{index}' for rule '{ruleId}'");
             }
         }
     }

@@ -8,5 +8,6 @@ namespace RBOService.Handlers.Groups
     public class CreateGroupResult
     {
         public Guid Id { get; set; }
+        public bool IsNew { get; set; }
     }
 }

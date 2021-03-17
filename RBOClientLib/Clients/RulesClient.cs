@@ -35,7 +35,7 @@ namespace RBOClientLib.Clients
             }
             else
             {
-                throw new InvalidOperationException($"Rule creation at index '{index}' for group '{groupId}' failed.");
+                throw new UnauthorizedAccessException($"Unauthorized rule creation at index '{index}' for group '{groupId}'");
             }
 
         }

@@ -17,7 +17,7 @@ namespace RBOService.Database
         {
             
         }
-
+        
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -60,8 +60,7 @@ namespace RBOService.Database
 
                 cfg.HasMany(r => r.Parameters)
                     .WithOne(p => p.Rule)
-                    .IsRequired();
-                
+                    .IsRequired();                
 
                 cfg.HasOne(r => r.Group)
                     .WithMany(g => g.Rules)
@@ -80,8 +79,23 @@ namespace RBOService.Database
                 cfg.HasMany(g => g.Rules)
                     .WithOne(r => r.Group)
                     .IsRequired();
-
             });
+
+            builder.Entity<UserEntity>(cfg =>
+            {
+                cfg.HasKey(u => u.Id);
+
+                cfg.Property(u => u.Username)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                cfg.Property(u => u.Password)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            builder.Entity<UserEntity>().HasData(new { Id=1, Username = "user", Password = "pass" });
+                
         }
     }
 }

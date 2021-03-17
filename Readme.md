@@ -2,7 +2,7 @@
 
 Unit or integration testing often require the use of complex objects that are fake but look realistic.
 
-Such objects can be constructed using creational patterns but they all require coding. An alternative is to use an engine and a set of rules to create the onject.
+Such objects can be constructed using creational patterns but they all require coding. An alternative is to use an engine and a set of rules to create the object.
 
 The solution contains both a local library (RBOLib) and a web service (RBOService, RBOClientLib) to achieve the same goal, the former uses reflection and the latter json object and array manipulation.
 
@@ -95,8 +95,16 @@ or if we want to create an array of objects (owners), we keep the rules and repl
 ```C#
 var owners = RBO.CreateArray<Owner>(2);
 ```
-# Advantages
 
+# Running Instructions
+1. Local library version
+    1. Start the **LocalApp** console application. It will create an object from rules and output it to the screen. 
+    2. Edit Program.cs and try again.
+2. Service version
+    1. Start RBOService
+    2. Run the **ClientApp** console applitaion. Notice that the content of program.cs is almost identical to the previous one (LocalApp)  
+
+# Advantages
 1. Rules are easier to code then "for and if" statements.
 2. Pattern matching is flexible and tolerant to code changes.
 3. Rule sets can be shared between projects.
@@ -108,4 +116,3 @@ var owners = RBO.CreateArray<Owner>(2);
 3. SimpleSoft Mediator
 3. Entity Framework (In memory database)
 4. Swagger documentation (Swashbuckle)
-

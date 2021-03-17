@@ -28,6 +28,7 @@ namespace RBOService.Test
         {
             var client = _factory.CreateClient();
             RBOInitClient RBO = new RBOInitClient(client);
+            RBO.Login("user", "pass");
             RBO.AddRule("Id", SourceTypeEnum.Sequence);
             RBO.AddRule("Name", SourceTypeEnum.Array, "Paul", "John");
             RBO.AddRule("Pets.Length", SourceTypeEnum.Value, 5);
@@ -54,6 +55,7 @@ namespace RBOService.Test
         {
             var client = _factory.CreateClient();
             RBOInitClient RBO = new RBOInitClient(client);
+            RBO.Login("user", "pass");
             RBO.AddRule("Id", SourceTypeEnum.Sequence);
             RBO.AddRule("Name", SourceTypeEnum.Array, "Paul", "John");
             RBO.AddRule("Pets.Length", SourceTypeEnum.Value, 5);

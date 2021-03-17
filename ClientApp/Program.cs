@@ -13,6 +13,7 @@ namespace ClientApp
             try
             {
                 var RBO = new RBOInitClient(new Uri("https://localhost:44351/"));
+                RBO.Login("user", "pass");
 
                 RBO.AddRule("Id", SourceTypeEnum.Sequence);
                 RBO.AddRule("Name", SourceTypeEnum.Array, "Paul", "John");
@@ -21,12 +22,11 @@ namespace ClientApp
                 RBO.AddRule("Species", SourceTypeEnum.Array, "Dog", "Cat", "Fish");
                 RBO.AddRule("Age", SourceTypeEnum.Random, 1, 10);
                 RBO.AddRule("IsTrained", SourceTypeEnum.Array, true, false);
-                
-                var owners = RBO.CreateArray<Owner>(10);
+                var owners = RBO.CreateArray<Owner>(10);                                
                 
                 JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
                 var json = JsonSerializer.Serialize(owners, options);
-                Console.WriteLine(json);               
+                Console.WriteLine(json);
             }
             catch (Exception e)
             {

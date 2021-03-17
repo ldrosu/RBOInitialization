@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RBOService.Exceptions;
 using RBOService.Handlers.Parameters;
 using RBOService.Handlers.Parameters.Commands;
@@ -15,12 +17,17 @@ using SimpleSoft.Mediator;
 namespace RBOService.Controllers.Parameters
 {
     [Route("[controller]")]
+    [ApiController]
+    [Authorize]
     public class ParametersController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public ParametersController(IMediator mediator)
+        private readonly ILogger<ParametersController> _logger;
+
+        public ParametersController(IMediator mediator, ILogger<ParametersController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -72,6 +79,9 @@ namespace RBOService.Controllers.Parameters
         {
             try
             {
+                var userName = User.Identity?.Name;
+                _logger.LogInformation($"User '{userName}' is creating parameter '{model.Value}'");
+
                 var result = await _mediator.SendAsync(new CreateParameterCommand
                 {
                     Index = model.Index,

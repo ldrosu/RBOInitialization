@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RBOService.Exceptions;
 using RBOService.Handlers.Rules;
 using RBOService.Handlers.Rules.Commands;
@@ -15,12 +17,17 @@ using SimpleSoft.Mediator;
 namespace RBOService.Controllers.Rules
 {
     [Route("[controller]")]
+    [ApiController]
+    [Authorize]
     public class RulesController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public RulesController(IMediator mediator)
+        private readonly ILogger<RulesController> _logger;
+
+        public RulesController(IMediator mediator, ILogger<RulesController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]       
@@ -76,6 +83,9 @@ namespace RBOService.Controllers.Rules
         {
             try
             {
+                var userName = User.Identity?.Name;
+                _logger.LogInformation($"User '{userName}' is creating rule '{model.Index}'");
+
                 var result = await _mediator.SendAsync(new CreateRuleCommand
                 {
                     Index = model.Index,
