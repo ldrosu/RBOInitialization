@@ -27,7 +27,7 @@ The supported assignment actions are:
 * Random - random value between limits 
 * Array - value selected from elements of array
 
-# Examples
+# Example
 The best way to understand how this works is by a simple example.
 
 Lets suppose we have two classes Pet and Owner and an owner has many pets.
@@ -97,12 +97,13 @@ var owners = RBO.CreateArray<Owner>(2);
 ```
 
 # Running Instructions
-1. Local library version
+1. Local (library, console app, unit test)
     1. Start the **LocalApp** console application. It will create an object from rules and output it to the screen. 
     2. Edit Program.cs and try again.
-2. Service version
-    1. Start RBOService
-    2. Run the **ClientApp** console applitaion. Notice that the content of program.cs is almost identical to the previous one (LocalApp)  
+2. Service (webapi, client library, console app, integration test)
+    1. Start RBOService.
+    2. Run the **ClientApp** console applitaion. Notice that the content of program.cs is almost identical to the previous one (LocalApp).
+    3. Swagger interface requires login (username=user, password=pass) and copy the token in the authorization window to be applied to all subsequent calls.
 
 # Advantages
 1. Rules are easier to code then "for and if" statements.
@@ -114,5 +115,6 @@ var owners = RBO.CreateArray<Owner>(2);
 1. Web API ASP.NET Core
 2. Command Query Responsibility Segregation(CQRS)
 3. SimpleSoft Mediator
-3. Entity Framework (In memory database)
-4. Swagger documentation (Swashbuckle)
+4. Entity Framework (In memory database)
+5. Swagger documentation (Swashbuckle)
+6. Bearer authentication 
